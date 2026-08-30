@@ -134,7 +134,7 @@ def add_new_task(task: TaskCreate, user_id: int = Depends(get_current_user_id)):
 @app.get("/tasks")
 def get_all_tasks(user_id: int = Depends(get_current_user_id)):
     # We strictly filter by the logged-in user's ID to isolate data
-    cursor.execute("SELECT id, title, completed FROM tasks WHERE user_id = ?", (user_id,))
+    cursor.execute("SELECT id, title, completed, due_date FROM tasks WHERE user_id = ?", (user_id,))
     rows = cursor.fetchall()
     
     task_list = [{"id": row[0], "title": row[1], "completed": bool(row[2])} for row in rows]
