@@ -37,7 +37,8 @@ async function register() {
         return;
     }
 
-    const response = await fetch(`${API_BASE_URL}/login`, {
+    // FIXED: Changed /login to /register here!
+    const response = await fetch(`${API_BASE_URL}/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password })
