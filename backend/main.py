@@ -124,9 +124,9 @@ def login_user(user: UserLogin):
 @app.post("/tasks")
 def add_new_task(task: TaskCreate, user_id: int = Depends(get_current_user_id)):
     cursor.execute(
-        "INSERT INTO tasks (title, completed, user_id) VALUES (?, ?, ?)",
-        (task.title, False, user_id)
-    )
+    "INSERT INTO tasks (title, completed, due_date, user_id) VALUES (?, ?, ?, ?)",
+    (task.title, False, task.due_date, user_id) 
+)
     conn.commit()
     return {"message": "Task added permanently!"}
 
