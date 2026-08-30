@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Tracker Console</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- AUTHENTICATION VIEW -->
+    <div id="authSection" class="app-container">
+        <h2 class="app-title">System Authentication</h2>
+        <div class="auth-form">
+            <input type="email" id="emailInput" placeholder="Enter your email...">
+            <input type="password" id="passwordInput" placeholder="Enter your password...">
+            <div class="auth-buttons">
+                <button class="action-btn primary-btn" onclick="login()">Login</button>
+                <button class="action-btn secondary-btn" onclick="register()">Register</button>
+            </div>
+            <p id="authMessage" class="auth-msg"></p>
+        </div>
+    </div>
+
+    <!-- MAIN TASK MANAGER VIEW -->
+    <div id="appSection" class="app-container hidden">
+        <div class="header-group">
+            <h2 class="app-title">Task Console</h2>
+            <button class="action-btn delete-btn" onclick="logout()">Logout</button>
+        </div>
+        
+        <!-- Task Creation Bar -->
+        <div class="input-group">
+            <input type="text" id="taskInput" placeholder="What needs to be done?">
+            <input type="date" id="taskDate">
+            <button class="add-btn" onclick="sendTaskToBackend()">Add</button>
+        </div>
+
+        <!-- Filter Navigation (TickTick Style) -->
+        <div class="filter-tabs">
+            <button class="tab-btn active" onclick="setFilter('today')">Today</button>
+            <button class="tab-btn" onclick="setFilter('tomorrow')">Tomorrow</button>
+            <button class="tab-btn" onclick="setFilter('all')">All Tasks</button>
+        </div>
+
+        <ul id="taskContainer"></ul>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

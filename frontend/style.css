@@ -1,0 +1,255 @@
+:root {
+    --primary-blue: #007bff;
+    --background-grey: #f0f2f5;
+    --text-dark: #2d3436;
+    --done-green: #2ecc71;
+    --pending-orange: #f39c12;
+    --delete-red: #e74c3c;
+    --border-color: #e2e8f0;
+    --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    --transition: all 0.2s ease-in-out;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background-color: var(--background-grey);
+    color: var(--text-dark);
+    padding: 40px 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.app-container {
+    width: 100%;
+    max-width: 650px;
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: var(--box-shadow);
+}
+
+.app-title {
+    text-align: center;
+    margin-bottom: 24px;
+    color: var(--primary-blue);
+    font-size: 1.7rem;
+    font-weight: 600;
+}
+
+/* Form Inputs */
+.input-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+#taskInput {
+    flex-grow: 2;
+    padding: 12px 14px;
+    border: 1.5px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    outline: none;
+    transition: var(--transition);
+}
+
+#taskDate {
+    flex-grow: 1;
+    padding: 12px 10px;
+    border: 1.5px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    outline: none;
+    background: #fff;
+}
+
+#taskInput:focus, #taskDate:focus {
+    border-color: var(--primary-blue);
+}
+
+.add-btn {
+    background-color: var(--primary-blue);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.add-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Filter Navigation */
+.filter-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    border-bottom: 1.5px solid var(--border-color);
+    padding-bottom: 8px;
+}
+
+.tab-btn {
+    background: transparent;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #636e72;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.tab-btn.active {
+    background-color: #e8f0fe;
+    color: var(--primary-blue);
+}
+
+/* Task Item Card */
+#taskContainer {
+    list-style: none;
+}
+
+.task-item {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: var(--transition);
+}
+
+.task-item:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.task-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-grow: 1;
+}
+
+.task-checkbox {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: var(--primary-blue);
+}
+
+.task-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.task-title {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.task-item.done .task-title {
+    text-decoration: line-through;
+    color: #b2bec3;
+}
+
+.task-date-badge {
+    font-size: 0.75rem;
+    color: #636e72;
+    margin-top: 2px;
+}
+
+/* Action Buttons */
+.action-btn {
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.delete-btn {
+    background: #ffebee;
+    color: var(--delete-red);
+}
+
+.delete-btn:hover {
+    background: var(--delete-red);
+    color: white;
+}
+
+/* Authentication Views */
+.hidden {
+    display: none !important;
+}
+
+.header-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.auth-form input {
+    padding: 12px 14px;
+    border: 1.5px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    outline: none;
+}
+
+.auth-form input:focus {
+    border-color: var(--primary-blue);
+}
+
+.auth-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.primary-btn {
+    background: var(--primary-blue);
+    color: #fff;
+    flex: 1;
+    padding: 12px;
+}
+
+.primary-btn:hover {
+    background: #0056b3;
+}
+
+.secondary-btn {
+    background: #f1f3f5;
+    color: #2d3436;
+    flex: 1;
+    padding: 12px;
+}
+
+.secondary-btn:hover {
+    background: #e9ecef;
+}
+
+.auth-msg {
+    text-align: center;
+    font-size: 0.85rem;
+    margin-top: 6px;
+}
