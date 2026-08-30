@@ -86,6 +86,7 @@ class UserLogin(BaseModel):
 
 class TaskCreate(BaseModel):
     title: str
+    due_date: str
     # Notice we removed ID and completed. The database handles ID, and default handles completed.
 
 
