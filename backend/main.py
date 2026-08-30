@@ -17,7 +17,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- DATABASE SETUP (UPGRADED WITH TIME ENGINE) ---
+# --- DATABASE SETUP ---
 conn = sqlite3.connect("tasks.db", check_same_thread=False)
 cursor = conn.cursor()
 cursor.execute("PRAGMA foreign_keys = ON;")
@@ -30,13 +30,11 @@ cursor.execute("""
     )
 """)
 
-# NEW: Notice the due_date column. We store dates as TEXT (YYYY-MM-DD).
 cursor.execute("""
     CREATE TABLE IF NOT EXISTS tasks (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         title TEXT NOT NULL,
         completed BOOLEAN DEFAULT 0,
-        due_date TEXT NOT NULL, 
         user_id INTEGER NOT NULL,
         FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
     )
@@ -48,6 +46,8 @@ conn.commit()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 SECRET_KEY = "my_super_secret_key_change_in_production"
 ALGORITHM = "HS256"
+
+# This tells FastAPI where the frontend will send login credentials to get a token
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 def get_password_hash(password: str):
@@ -58,12 +58,14 @@ def verify_password(plain_password, hashed_password):
 
 def create_access_token(data: dict):
     to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(hours=24)
+    expire = datetime.utcnow() + timedelta(hours=24) # Token expires in 24 hours
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
+# THE BOUNCER: This function protects our task endpoints
 def get_current_user_id(token: str = Depends(oauth2_scheme)):
     try:
+        # Decode the token using our secret key
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id: str = payload.get("sub")
         if user_id is None:
@@ -82,10 +84,9 @@ class UserLogin(BaseModel):
     email: str
     password: str
 
-# NEW: The API now strictly requires a due_date when creating a task
 class TaskCreate(BaseModel):
     title: str
-    due_date: str 
+    # Notice we removed ID and completed. The database handles ID, and default handles completed.
 
 
 # --- AUTHENTICATION ENDPOINTS ---
@@ -115,34 +116,39 @@ def login_user(user: UserLogin):
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-# --- TASK ENDPOINTS (UPGRADED WITH DATES) ---
+# --- TASK ENDPOINTS (NOW SECURED) ---
+
+# Notice the new parameter: user_id: int = Depends(get_current_user_id)
+# This forces the endpoint to run "The Bouncer" before executing the code.
+
 @app.post("/tasks")
 def add_new_task(task: TaskCreate, user_id: int = Depends(get_current_user_id)):
-    # NEW: We insert the due_date into the database
     cursor.execute(
-        "INSERT INTO tasks (title, completed, due_date, user_id) VALUES (?, ?, ?, ?)",
-        (task.title, False, task.due_date, user_id)
+        "INSERT INTO tasks (title, completed, user_id) VALUES (?, ?, ?)",
+        (task.title, False, user_id)
     )
     conn.commit()
     return {"message": "Task added permanently!"}
 
 @app.get("/tasks")
 def get_all_tasks(user_id: int = Depends(get_current_user_id)):
-    # NEW: We pull the due_date out of the database
-    cursor.execute("SELECT id, title, completed, due_date FROM tasks WHERE user_id = ?", (user_id,))
+    # We strictly filter by the logged-in user's ID to isolate data
+    cursor.execute("SELECT id, title, completed FROM tasks WHERE user_id = ?", (user_id,))
     rows = cursor.fetchall()
     
-    task_list = [{"id": row[0], "title": row[1], "completed": bool(row[2]), "due_date": row[3]} for row in rows]
+    task_list = [{"id": row[0], "title": row[1], "completed": bool(row[2])} for row in rows]
     return task_list
 
 @app.put("/tasks/{task_id}")
 def toggle_task_status(task_id: int, user_id: int = Depends(get_current_user_id)):
+    # We include user_id in the WHERE clause so a hacker can't toggle someone else's task
     cursor.execute("UPDATE tasks SET completed = NOT completed WHERE id = ? AND user_id = ?", (task_id, user_id))
     conn.commit()
     return {"message": f"Task {task_id} status toggled."}
 
 @app.delete("/tasks/{task_id}")
 def delete_task(task_id: int, user_id: int = Depends(get_current_user_id)):
+    # We include user_id in the WHERE clause to prevent unauthorized deletion
     cursor.execute("DELETE FROM tasks WHERE id = ? AND user_id = ?", (task_id, user_id))
     conn.commit()
     return {"message": f"Task {task_id} permanently deleted."}

@@ -95,7 +95,7 @@ async function sendTaskToBackend() {
 
     if (!title || !dueDate) return;
 
-    await fetch("http://127.0.0.1:8000/tasks", {
+    await fetch(API_BASE_URL + "/tasks", {
         method: "POST",
         headers: { 
             "Content-Type": "application/json",
