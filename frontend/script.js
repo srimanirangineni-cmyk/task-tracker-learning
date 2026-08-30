@@ -109,7 +109,7 @@ async function sendTaskToBackend() {
 }
 
 async function fetchTasksFromBackend() {
-    const response = await fetch("http://127.0.0.1:8000/tasks", {
+    const response = await fetch(API_BASE_URL + "/tasks", {
         headers: { "Authorization": `Bearer ${currentToken}` }
     });
 
@@ -207,7 +207,7 @@ function renderTasks() {
 }
 
 async function toggleTask(taskId) {
-    await fetch(`http://127.0.0.1:8000/tasks/${taskId}`, {
+    await fetch(`${API_BASE_URL}/tasks/${taskId}`, {
         method: "PUT",
         headers: { "Authorization": `Bearer ${currentToken}` }
     });
@@ -215,7 +215,7 @@ async function toggleTask(taskId) {
 }
 
 async function deleteTask(taskId) {
-    await fetch(`http://127.0.0.1:8000/tasks/${taskId}`, {
+    await fetch(`${API_BASE_URL}/tasks/${taskId}`, {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${currentToken}` }
     });
