@@ -9,6 +9,8 @@ from datetime import datetime, timedelta
 
 app = FastAPI()
 
+# --- CORS SETUP ---
+# This allows your live frontend to securely talk to your live backend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], 
@@ -22,6 +24,7 @@ conn = sqlite3.connect("tasks.db", check_same_thread=False)
 cursor = conn.cursor()
 cursor.execute("PRAGMA foreign_keys = ON;")
 
+# Create Users Table
 cursor.execute("""
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -30,11 +33,13 @@ cursor.execute("""
     )
 """)
 
+# Create Tasks Table (Updated with due_date)
 cursor.execute("""
     CREATE TABLE IF NOT EXISTS tasks (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         title TEXT NOT NULL,
         completed BOOLEAN DEFAULT 0,
+        due_date TEXT, 
         user_id INTEGER NOT NULL,
         FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
     )
@@ -58,7 +63,8 @@ def verify_password(plain_password, hashed_password):
 
 def create_access_token(data: dict):
     to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(hours=24) # Token expires in 24 hours
+    # Token expires in 24 hours for security
+    expire = datetime.utcnow() + timedelta(hours=24) 
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
@@ -84,10 +90,18 @@ class UserLogin(BaseModel):
     email: str
     password: str
 
+# Model for incoming data (Adding a task)
 class TaskCreate(BaseModel):
     title: str
     due_date: str
     # Notice we removed ID and completed. The database handles ID, and default handles completed.
+
+# Model for outgoing data (Fetching tasks)
+class Task(BaseModel):
+    id: int
+    title: str
+    completed: bool
+    due_date: str
 
 
 # --- AUTHENTICATION ENDPOINTS ---
@@ -118,16 +132,15 @@ def login_user(user: UserLogin):
 
 
 # --- TASK ENDPOINTS (NOW SECURED) ---
-
 # Notice the new parameter: user_id: int = Depends(get_current_user_id)
 # This forces the endpoint to run "The Bouncer" before executing the code.
 
 @app.post("/tasks")
 def add_new_task(task: TaskCreate, user_id: int = Depends(get_current_user_id)):
     cursor.execute(
-    "INSERT INTO tasks (title, completed, due_date, user_id) VALUES (?, ?, ?, ?)",
-    (task.title, False, task.due_date, user_id) 
-)
+        "INSERT INTO tasks (title, completed, due_date, user_id) VALUES (?, ?, ?, ?)",
+        (task.title, False, task.due_date, user_id) 
+    )
     conn.commit()
     return {"message": "Task added permanently!"}
 
@@ -137,7 +150,8 @@ def get_all_tasks(user_id: int = Depends(get_current_user_id)):
     cursor.execute("SELECT id, title, completed, due_date FROM tasks WHERE user_id = ?", (user_id,))
     rows = cursor.fetchall()
     
-    task_list = [{"id": row[0], "title": row[1], "completed": bool(row[2])} for row in rows]
+    # Formats the rows into a dictionary with the due_date included
+    task_list = [{"id": row[0], "title": row[1], "completed": bool(row[2]), "due_date": row[3]} for row in rows]
     return task_list
 
 @app.put("/tasks/{task_id}")
