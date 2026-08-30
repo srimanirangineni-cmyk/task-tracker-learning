@@ -1,5 +1,5 @@
 // Change this URL once your Render backend is deployed
-const API_BASE_URL = "http://127.0.0.1:8000";
+const API_BASE_URL = "https://task-tracker-sfla.onrender.com";
 
 let currentToken = localStorage.getItem("jwt_token");
 let allTasks = [];
